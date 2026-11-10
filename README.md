@@ -57,6 +57,10 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## WebSocket echo
+
+The WebSocket gateway listens at `/ws` on the same host and port as the HTTP server. Send JSON messages in the `{ "event": "message", "data": ... }` format; the gateway replies with the JSON-encoded `data` value.
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
