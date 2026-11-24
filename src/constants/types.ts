@@ -1,13 +1,16 @@
 export type MessageType = {
-  id: string;
+  chatId: string;
+  messageId: string;
   type: "income" | "outgoing";
   content: string;
   createdAt: Date;
   userId: string;
+  status: "delivered" | "notDelivered" | "sending";
 };
 
 export type MessageDeliveredStatusType = {
-  id: string;
-  status: 'delivered';
+  chatId: string;
+  messageId: string;
+  status: 'delivered' | 'notDelivered' | 'sending';
   deliveredAt: Date;
 };

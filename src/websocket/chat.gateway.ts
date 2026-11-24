@@ -22,21 +22,24 @@ export class ChatGateway {
     console.log('Received message:', data);
 
     const response: MessageType = {
-      id: uuidv4(),
+      chatId: data.chatId,
+      messageId: uuidv4(),
       createdAt: new Date(),
       content: 'Привет, я получил сообщение от пользователя: ' + data.content,
       userId: data.userId,
       type: 'income',
+      status: 'delivered',
     };
 
     const messageDeliveredResponse: MessageDeliveredStatusType = {
-      id: data.id,
+      messageId: data.messageId,
+      chatId: data.chatId,
       status: 'delivered',
       deliveredAt: new Date(),
     };
 
-    client.emit('message:delivered', messageDeliveredResponse);
-    client.emit('message', response);
+    setTimeout(() => client.emit('message:delivered', messageDeliveredResponse), 40000);
+    setTimeout(() => client.emit('message', response), 50000);
     return response;
   }
 }
