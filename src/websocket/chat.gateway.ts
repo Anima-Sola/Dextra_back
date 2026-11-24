@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import type { MessageType, MessageReceivedType } from '../constants/types.ts';
+import type { MessageType, MessageDeliveredStatusType } from '../constants/types.ts';
 
 @WebSocketGateway({ path: '/ws' })
 export class ChatGateway {
@@ -22,16 +22,15 @@ export class ChatGateway {
     console.log('Received message:', data);
 
     const response: MessageType = {
-      _id: uuidv4(),
+      id: uuidv4(),
       createdAt: new Date(),
-      text: 'Привет, я получил сообщение от пользователя: ' + data.text,
-      user: {
-        _id: 'ai-bot',
-      },
+      content: 'Привет, я получил сообщение от пользователя: ' + data.content,
+      userId: data.userId,
+      type: 'income',
     };
 
-    const messageDeliveredResponse: MessageReceivedType = {
-      _id: data._id,
+    const messageDeliveredResponse: MessageDeliveredStatusType = {
+      id: data.id,
       status: 'delivered',
       deliveredAt: new Date(),
     };

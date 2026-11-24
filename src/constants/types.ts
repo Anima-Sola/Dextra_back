@@ -1,16 +1,13 @@
 export type MessageType = {
-    _id: string;
-    text: string;
-    createdAt: Date;
-    user: {
-      _id: string;
-      name?: string;
-      avatar?: string;
-    };
-  };
+  id: string;
+  type: "income" | "outgoing";
+  content: string;
+  createdAt: Date;
+  userId: string;
+};
 
-export type MessageReceivedType = {
-  _id: string;
+export type MessageDeliveredStatusType = {
+  id: string;
   status: 'delivered';
   deliveredAt: Date;
 };
