@@ -7,29 +7,26 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import type { MessageType, MessageDeliveredStatusType } from '../constants/types.ts';
+import type { MessageType, MessageDeliveredStatusType } from '../constants/types.js';
+import { JevService } from '../ai/jev/jev.service.js';
 
 @WebSocketGateway({ path: '/ws' })
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
+  constructor(private readonly jevService: JevService) {}
+
   @SubscribeMessage('message')
-  handleMessage(
-    @MessageBody() data: MessageType,
+  async handleMessage(
+    @MessageBody() data: MessageType & { text?: string },
     @ConnectedSocket() client: Socket,
-  ): MessageType {
+  ): Promise<MessageType | { text: string }> {
     console.log('Received message:', data);
 
-    const response: MessageType = {
-      chatId: data.chatId,
-      messageId: uuidv4(),
-      createdAt: new Date(),
-      content: 'Привет, я получил сообщение от пользователя: ' + data.content,
-      userId: data.userId,
-      type: 'income',
-      status: 'delivered',
-    };
+    if (typeof data.text === 'string') {
+      return { text: data.text };
+    }
 
     const messageDeliveredResponse: MessageDeliveredStatusType = {
       messageId: data.messageId,
@@ -38,8 +35,21 @@ export class ChatGateway {
       deliveredAt: new Date(),
     };
 
-    setTimeout(() => client.emit('message:delivered', messageDeliveredResponse), 40000);
-    setTimeout(() => client.emit('message', response), 50000);
+    client.emit('message:delivered', messageDeliveredResponse);
+
+    const jevResponse = await this.jevService.evaluate(data.content);
+
+    const response: MessageType = {
+      chatId: data.chatId,
+      messageId: uuidv4(),
+      createdAt: new Date(),
+      content: JSON.stringify(jevResponse),
+      userId: data.userId,
+      type: 'income',
+      status: 'delivered',
+    };
+
+    client.emit('message', response);
     return response;
   }
 }
